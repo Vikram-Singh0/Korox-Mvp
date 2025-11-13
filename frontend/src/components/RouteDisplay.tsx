@@ -21,7 +21,7 @@ export default function RouteDisplay({
   const getCongestionColor = (level: string) => {
     switch (level) {
       case "low":
-        return "from-emerald-500/20 to-emerald-600/20 border-emerald-500/30 text-emerald-300";
+        return "from-green-500/20 to-green-600/20 border-green-500/30 text-green-300";
       case "medium":
         return "from-yellow-500/20 to-yellow-600/20 border-yellow-500/30 text-yellow-300";
       case "high":
@@ -32,44 +32,44 @@ export default function RouteDisplay({
   };
 
   const getReliabilityColor = (reliability: number) => {
-    if (reliability >= 95) return "text-emerald-400";
-    if (reliability >= 90) return "text-blue-400";
+    if (reliability >= 95) return "text-green-400";
+    if (reliability >= 90) return "text-orange-400";
     return "text-yellow-400";
   };
 
   return (
     <div
-      className={`relative group transition-all duration-500 hover:scale-[1.02] ${
-        isRecommended ? "scale-[1.03]" : ""
+      className={`relative group transition-all duration-500 hover:scale-[1.01] ${
+        isRecommended ? "scale-[1.02]" : ""
       }`}
     >
       {/* Glow Effect */}
       <div
         className={`absolute inset-0 rounded-2xl blur-xl transition-opacity ${
           isRecommended
-            ? "bg-gradient-to-r from-yellow-500/30 via-amber-500/30 to-orange-500/30 opacity-50"
-            : "bg-gradient-to-r from-slate-500/10 to-slate-400/10 opacity-0 group-hover:opacity-30"
+            ? "bg-gradient-to-r from-orange-500/30 to-orange-600/30 opacity-50"
+            : "bg-gradient-to-r from-orange-500/5 to-orange-600/5 opacity-0 group-hover:opacity-30"
         }`}
       ></div>
 
       <div
-        className={`relative bg-slate-900/90 backdrop-blur-xl rounded-2xl p-6 border-2 transition-all ${
+        className={`relative bg-zinc-900/90 backdrop-blur-xl rounded-2xl p-6 border-2 transition-all ${
           isRecommended
-            ? "border-yellow-500/50 shadow-2xl shadow-yellow-500/20"
-            : "border-white/10 hover:border-white/20"
+            ? "border-orange-500/50 shadow-2xl shadow-orange-500/20"
+            : "border-orange-500/20 hover:border-orange-500/30"
         }`}
       >
         {isRecommended && (
-          <div className="flex items-center gap-2 mb-5 pb-5 border-b border-white/10">
+          <div className="flex items-center gap-2 mb-5 pb-5 border-b border-orange-500/20">
             <div className="relative">
-              <div className="absolute inset-0 bg-yellow-400 rounded-full blur-md opacity-50 animate-pulse"></div>
+              <div className="absolute inset-0 bg-orange-400 rounded-full blur-md opacity-50 animate-pulse"></div>
               <Star
-                className="relative text-yellow-400 fill-yellow-400"
+                className="relative text-orange-400 fill-orange-400"
                 size={22}
               />
             </div>
-            <span className="text-lg font-black bg-gradient-to-r from-yellow-400 to-amber-400 bg-clip-text text-transparent">
-              OPTIMAL ROUTE
+            <span className="text-lg font-black text-orange-400">
+              OPTIMAL ROUTE ⚔️
             </span>
           </div>
         )}
@@ -84,8 +84,8 @@ export default function RouteDisplay({
               >
                 <div className="flex flex-col items-center gap-1">
                   <div className="relative group/chain">
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl blur-md opacity-0 group-hover/chain:opacity-40 transition-opacity"></div>
-                    <div className="relative bg-gradient-to-br from-purple-500/20 to-blue-500/20 border-2 border-purple-500/30 px-4 py-3 rounded-xl backdrop-blur-sm hover:border-purple-400/50 transition-all">
+                    <div className="absolute inset-0 bg-orange-500 rounded-xl blur-md opacity-0 group-hover/chain:opacity-40 transition-opacity"></div>
+                    <div className="relative bg-gradient-to-br from-orange-500/20 to-orange-600/20 border-2 border-orange-500/30 px-4 py-3 rounded-xl backdrop-blur-sm hover:border-orange-400/50 transition-all">
                       <span className="text-white font-bold text-sm">
                         {step.chain.charAt(0).toUpperCase() +
                           step.chain.slice(1)}
@@ -93,8 +93,8 @@ export default function RouteDisplay({
                     </div>
                   </div>
                   {step.bridge && (
-                    <div className="px-2 py-0.5 bg-slate-800/50 border border-slate-700/50 rounded-md">
-                      <span className="text-xs text-gray-400 font-semibold">
+                    <div className="px-2 py-0.5 bg-zinc-900/50 border border-orange-500/20 rounded-md">
+                      <span className="text-xs text-orange-300 font-semibold">
                         {step.bridge}
                       </span>
                     </div>
@@ -128,7 +128,7 @@ export default function RouteDisplay({
                   <div className="text-xl font-black text-white">
                     {route.totalGas.toFixed(4)}
                   </div>
-                  <div className="text-xs text-gray-500 font-medium">DOT</div>
+                  <div className="text-xs text-gray-500 font-medium">WND</div>
                 </div>
               </div>
             </div>
@@ -174,7 +174,7 @@ export default function RouteDisplay({
                       route.relaibility
                     )}`}
                   >
-                    {route.relaibility}%
+                    {(route.relaibility ?? 0).toFixed(1)}%
                   </div>
                 </div>
               </div>

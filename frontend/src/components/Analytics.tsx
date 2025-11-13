@@ -14,19 +14,33 @@ import { TrendingDown, TrendingUp, Activity, Target } from "lucide-react";
 
 interface AnalyticsProps {
   analytics: {
-    averageGas: number;
-    savingsAmount: number;
-    savingsPercentage: number;
+    totalRoutesAnalyzed?: number;
+    avgGasSaving?: number;
+    avgTimeEstimate?: number;
+    networkHealth?: string;
+    averageGas?: number;
+    savingsAmount?: number;
+    savingsPercentage?: number;
   };
   routes: any[];
 }
 
 export default function Analytics({ analytics, routes }: AnalyticsProps) {
-  const chartData = routes.map((route, index) => ({
+  // Calculate analytics from routes if not provided with proper null checks
+  const averageGas = analytics?.averageGas ?? (routes?.length > 0 
+    ? routes.reduce((sum, r) => sum + (r?.totalGas ?? 0), 0) / routes.length 
+    : 0);
+  
+  const savingsPercentage = analytics?.savingsPercentage ?? analytics?.avgGasSaving ?? 0;
+  const savingsAmount = analytics?.savingsAmount ?? (routes?.length > 0 && routes[0]?.gasSaving 
+    ? (routes[0].totalGas * routes[0].gasSaving / 100)
+    : 0);
+
+  const chartData = (routes ?? []).map((route, index) => ({
     name: index === 0 ? "Optimal" : `Alt ${index}`,
-    gas: parseFloat(route.totalGas.toFixed(4)),
-    time: parseFloat((route.totalTime / 1000).toFixed(1)),
-    reliability: route.relaibility,
+    gas: parseFloat((route?.totalGas ?? 0).toFixed(4)),
+    time: parseFloat(((route?.totalTime ?? 0) / 1000).toFixed(1)),
+    reliability: route?.relaibility ?? route?.reliability ?? 0,
   }));
 
   return (
@@ -46,14 +60,14 @@ export default function Analytics({ analytics, routes }: AnalyticsProps) {
               </div>
             </div>
             <div className="text-5xl font-black text-white mt-3 mb-2">
-              {analytics.savingsPercentage.toFixed(1)}%
+              {(savingsPercentage ?? 0).toFixed(1)}%
             </div>
             <div className="flex items-baseline gap-2 text-emerald-100">
               <span className="text-2xl font-bold">
-                {analytics.savingsAmount.toFixed(4)}
+                {(savingsAmount ?? 0).toFixed(4)}
               </span>
               <span className="text-sm font-semibold opacity-90">
-                DOT saved
+                WND saved
               </span>
             </div>
           </div>
@@ -72,11 +86,11 @@ export default function Analytics({ analytics, routes }: AnalyticsProps) {
               </div>
             </div>
             <div className="text-5xl font-black text-white mt-3 mb-2">
-              {analytics.averageGas.toFixed(4)}
+              {(averageGas ?? 0).toFixed(4)}
             </div>
             <div className="flex items-baseline gap-2 text-blue-100">
               <span className="text-sm font-semibold opacity-90">
-                DOT per route
+                WND per route
               </span>
             </div>
           </div>
@@ -95,7 +109,7 @@ export default function Analytics({ analytics, routes }: AnalyticsProps) {
               </div>
             </div>
             <div className="text-5xl font-black text-white mt-3 mb-2">
-              {routes.length}
+              {routes?.length ?? 0}
             </div>
             <div className="flex items-baseline gap-2 text-purple-100">
               <span className="text-sm font-semibold opacity-90">
