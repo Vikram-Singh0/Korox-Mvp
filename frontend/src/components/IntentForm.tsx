@@ -37,7 +37,8 @@ export default function IntentForm({ onSubmit, isLoading }: IntentFormProps) {
     const fetchChains = async () => {
       try {
         setIsLoadingChains(true);
-        const response = await fetch("http://localhost:4000/api/chains");
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+        const response = await fetch(`${apiUrl}/api/chains`);
         const data = await response.json();
         
         if (data.success && data.chains) {

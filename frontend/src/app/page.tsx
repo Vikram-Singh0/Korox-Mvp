@@ -30,7 +30,8 @@ export default function Home() {
     setResult(null);
 
     try {
-      const response = await fetch("http://localhost:4000/api/intents/solve", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+      const response = await fetch(`${apiUrl}/api/intents/solve`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(intent),
@@ -45,7 +46,7 @@ export default function Home() {
     } catch (err: any) {
       setError(
         err.message ||
-          "An error occurred. Please make sure the backend server is running on http://localhost:4000"
+          "An error occurred. Please make sure the backend server is running."
       );
     } finally {
       setIsLoading(false);
