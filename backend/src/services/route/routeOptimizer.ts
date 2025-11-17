@@ -1,6 +1,6 @@
 /**
  * KOROX Route Optimizer
- * 
+ *
  * Multi-factor optimization engine that scores and ranks routes based on:
  * - Gas costs (lower is better)
  * - Transfer time (faster is better)
@@ -8,10 +8,14 @@
  * - Network congestion (lower is better)
  */
 
-import { ChainName } from '../../config/constants.js';
-import { logger } from '../../config/logger.js';
-import { routeGraph, RoutePath, RouteEdge } from './routeGraph.js';
-import { chainIntelligence, ChainStats, XcmFeeEstimate } from '../polkadot/chainService.js';
+import { ChainName } from "../../config/constants.js";
+import { logger } from "../../config/logger.js";
+import { routeGraph, RoutePath, RouteEdge } from "./routeGraph.js";
+import {
+  chainIntelligence,
+  ChainStats,
+  XcmFeeEstimate,
+} from "../polkadot/chainService.js";
 
 // ============================================================================
 // Types
@@ -34,7 +38,11 @@ export interface OptimizedRoute {
   };
 }
 
-export type OptimizationPriority = 'fastest' | 'cheapest' | 'balanced' | 'reliable';
+export type OptimizationPriority =
+  | "fastest"
+  | "cheapest"
+  | "balanced"
+  | "reliable";
 
 interface RouteScore {
   route: RoutePath;
@@ -51,7 +59,7 @@ interface RouteScore {
 
 export class RouteOptimizer {
   constructor() {
-    logger.info('RouteOptimizer initialized');
+    logger.info("RouteOptimizer initialized");
   }
 
   /**
@@ -60,14 +68,16 @@ export class RouteOptimizer {
   async findOptimalRoute(
     source: ChainName,
     destination: ChainName,
-    asset: string = 'WND',
-    priority: OptimizationPriority = 'balanced'
+    asset: string = "WND",
+    priority: OptimizationPriority = "balanced"
   ): Promise<OptimizedRoute | null> {
-    logger.info(`Finding optimal route: ${source} → ${destination} (${asset}, ${priority})`);
+    logger.info(
+      `Finding optimal route: ${source} → ${destination} (${asset}, ${priority})`
+    );
 
     // Step 1: Find all possible paths
     const allPaths = routeGraph.findAllPaths(source, destination, 3);
-    
+
     if (allPaths.length === 0) {
       logger.warn(`No route found from ${source} to ${destination}`);
       return null;
@@ -77,7 +87,7 @@ export class RouteOptimizer {
 
     // Step 2: Score each path
     const scoredRoutes = await Promise.all(
-      allPaths.map(path => this.scoreRoute(path, asset, priority))
+      allPaths.map((path) => this.scoreRoute(path, asset, priority))
     );
 
     // Step 3: Sort by score (highest first)
@@ -90,7 +100,11 @@ export class RouteOptimizer {
       allPaths.length > 1 ? scoredRoutes[1] : null
     );
 
-    logger.success(`Best route found: ${bestRoute.route.path.join(' → ')} (score: ${bestRoute.totalScore.toFixed(1)})`);
+    logger.success(
+      `Best route found: ${bestRoute.route.path.join(
+        " → "
+      )} (score: ${bestRoute.totalScore.toFixed(1)})`
+    );
 
     return optimizedRoute;
   }
@@ -105,14 +119,16 @@ export class RouteOptimizer {
   ): Promise<RouteScore> {
     // Fetch real-time chain stats for all chains in the path
     const chainStats = await Promise.all(
-      route.path.map(chain => chainIntelligence.getChainStats(chain))
+      route.path.map((chain) => chainIntelligence.getChainStats(chain))
     );
 
     // Calculate gas cost for the entire route
     const gasCost = await this.calculateRouteGasCost(route);
 
     // Calculate average congestion across the route
-    const avgCongestion = chainStats.reduce((sum, stat) => sum + stat.congestionScore, 0) / chainStats.length;
+    const avgCongestion =
+      chainStats.reduce((sum, stat) => sum + stat.congestionScore, 0) /
+      chainStats.length;
 
     // Get weights based on priority
     const weights = this.getWeights(priority);
@@ -124,11 +140,11 @@ export class RouteOptimizer {
     const congestionScore = 100 - avgCongestion; // Lower congestion = higher score
 
     // Calculate weighted total score
-    const totalScore = 
-      (gasScore * weights.gas) +
-      (timeScore * weights.time) +
-      (reliabilityScore * weights.reliability) +
-      (congestionScore * weights.congestion);
+    const totalScore =
+      gasScore * weights.gas +
+      timeScore * weights.time +
+      reliabilityScore * weights.reliability +
+      congestionScore * weights.congestion;
 
     return {
       route,
@@ -136,7 +152,7 @@ export class RouteOptimizer {
       time: route.estimatedTime,
       reliability: route.totalReliability,
       congestion: avgCongestion,
-      totalScore
+      totalScore,
     };
   }
 
@@ -163,13 +179,13 @@ export class RouteOptimizer {
    */
   private getWeights(priority: OptimizationPriority): Record<string, number> {
     switch (priority) {
-      case 'fastest':
+      case "fastest":
         return { gas: 0.1, time: 0.5, reliability: 0.2, congestion: 0.2 };
-      case 'cheapest':
+      case "cheapest":
         return { gas: 0.5, time: 0.1, reliability: 0.2, congestion: 0.2 };
-      case 'reliable':
+      case "reliable":
         return { gas: 0.15, time: 0.15, reliability: 0.5, congestion: 0.2 };
-      case 'balanced':
+      case "balanced":
       default:
         return { gas: 0.25, time: 0.25, reliability: 0.25, congestion: 0.25 };
     }
@@ -182,7 +198,7 @@ export class RouteOptimizer {
     // Typical XCM fee range: 0.01 - 0.05 WND
     const minGas = 0.01;
     const maxGas = 0.05;
-    
+
     const normalized = 100 - ((gasCost - minGas) / (maxGas - minGas)) * 100;
     return Math.max(0, Math.min(100, normalized));
   }
@@ -194,8 +210,9 @@ export class RouteOptimizer {
     // Typical transfer times: 24s (1 hop) - 100s (3 hops)
     const minTime = 24;
     const maxTime = 100;
-    
-    const normalized = 100 - ((timeSeconds - minTime) / (maxTime - minTime)) * 100;
+
+    const normalized =
+      100 - ((timeSeconds - minTime) / (maxTime - minTime)) * 100;
     return Math.max(0, Math.min(100, normalized));
   }
 
@@ -207,11 +224,14 @@ export class RouteOptimizer {
     alternativeRoute: RouteScore | null
   ): Promise<OptimizedRoute> {
     // Calculate savings if alternative exists
-    let savings: OptimizedRoute['savings'] = undefined;
+    let savings: OptimizedRoute["savings"] = undefined;
     if (alternativeRoute) {
-      const savingsPercent = ((alternativeRoute.gasCost - bestRoute.gasCost) / alternativeRoute.gasCost) * 100;
+      const savingsPercent =
+        ((alternativeRoute.gasCost - bestRoute.gasCost) /
+          alternativeRoute.gasCost) *
+        100;
       savings = {
-        vsBestAlternative: Math.round(savingsPercent)
+        vsBestAlternative: Math.round(savingsPercent),
       };
     }
 
@@ -220,14 +240,17 @@ export class RouteOptimizer {
       bestRoute.route.path[0],
       bestRoute.route.path[bestRoute.route.path.length - 1]
     );
-    
+
     if (directRoute && bestRoute.route.hops > 1) {
-      const directGasCost = (await chainIntelligence.estimateXcmFee(
-        bestRoute.route.path[0],
-        bestRoute.route.path[bestRoute.route.path.length - 1]
-      )).estimatedFee;
-      
-      const directSavings = ((directGasCost - bestRoute.gasCost) / directGasCost) * 100;
+      const directGasCost = (
+        await chainIntelligence.estimateXcmFee(
+          bestRoute.route.path[0],
+          bestRoute.route.path[bestRoute.route.path.length - 1]
+        )
+      ).estimatedFee;
+
+      const directSavings =
+        ((directGasCost - bestRoute.gasCost) / directGasCost) * 100;
       if (!savings) savings = {};
       savings.vsDirectRoute = Math.round(directSavings);
     }
@@ -243,21 +266,26 @@ export class RouteOptimizer {
         gasCost: parseFloat(bestRoute.gasCost.toFixed(4)),
         estimatedTime: bestRoute.time,
         reliability: Math.round(bestRoute.reliability),
-        congestionScore: Math.round(bestRoute.congestion)
+        congestionScore: Math.round(bestRoute.congestion),
       },
       recommendation,
-      savings
+      savings,
     };
   }
 
   /**
    * Generate human-readable recommendation
    */
-  private generateRecommendation(route: RouteScore, savings?: OptimizedRoute['savings']): string {
+  private generateRecommendation(
+    route: RouteScore,
+    savings?: OptimizedRoute["savings"]
+  ): string {
     const { route: routePath, gasCost, time, reliability, congestion } = route;
 
     if (routePath.hops === 1) {
-      return `Direct route with ${reliability.toFixed(0)}% reliability. Estimated time: ${time}s.`;
+      return `Direct route with ${reliability.toFixed(
+        0
+      )}% reliability. Estimated time: ${time}s.`;
     }
 
     let recommendation = `${routePath.hops}-hop route`;
@@ -275,7 +303,9 @@ export class RouteOptimizer {
     }
 
     if (reliability < 85) {
-      recommendation += ` Note: Below-average reliability (${reliability.toFixed(0)}%).`;
+      recommendation += ` Note: Below-average reliability (${reliability.toFixed(
+        0
+      )}%).`;
     }
 
     return recommendation;
@@ -287,12 +317,19 @@ export class RouteOptimizer {
   async compareRoutes(
     source: ChainName,
     destination: ChainName,
-    asset: string = 'WND'
+    asset: string = "WND"
   ): Promise<OptimizedRoute[]> {
-    const priorities: OptimizationPriority[] = ['fastest', 'cheapest', 'balanced', 'reliable'];
-    
+    const priorities: OptimizationPriority[] = [
+      "fastest",
+      "cheapest",
+      "balanced",
+      "reliable",
+    ];
+
     const routes = await Promise.all(
-      priorities.map(priority => this.findOptimalRoute(source, destination, asset, priority))
+      priorities.map((priority) =>
+        this.findOptimalRoute(source, destination, asset, priority)
+      )
     );
 
     return routes.filter((r): r is OptimizedRoute => r !== null);
@@ -304,12 +341,12 @@ export class RouteOptimizer {
   async getRecommendation(
     source: ChainName,
     destination: ChainName,
-    asset: string = 'WND',
+    asset: string = "WND",
     amount?: number
   ): Promise<OptimizedRoute | null> {
     // For MVP, use balanced priority
     // In production, we could factor in amount to optimize differently
-    return this.findOptimalRoute(source, destination, asset, 'balanced');
+    return this.findOptimalRoute(source, destination, asset, "balanced");
   }
 }
 

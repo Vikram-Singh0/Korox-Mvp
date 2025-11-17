@@ -343,7 +343,7 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-8 pt-6 border-t border-orange-500/10 text-center text-gray-500 text-sm">
-            <p>© 2025 KOROX. Built for the Polkadot Ecosystem Grant Program.</p>
+            <p>© 2025 KOROX. Built for the Polkadot Ecosystem .</p>
           </div>
         </div>
       </footer>

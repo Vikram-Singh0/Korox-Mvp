@@ -52,24 +52,27 @@ export class PolkadotApiClient {
       }
 
       logger.info(`🌐 Connecting to ${chain}...`);
-      
+
       const provider = new WsProvider(endpoint, 2000); // 2s timeout
-      const api = await ApiPromise.create({ 
+      const api = await ApiPromise.create({
         provider,
         throwOnConnect: true,
       });
 
       logger.success(`Connected to ${chain} (${endpoint})`);
-      
+
       this.connections.set(chain, api);
       this.connectionAttempts.set(chain, 0); // Reset counter on success
-      
+
       return api;
     } catch (err) {
       const attempts = (this.connectionAttempts.get(chain) || 0) + 1;
       this.connectionAttempts.set(chain, attempts);
-      
-      logger.error(`❌ Failed to connect to ${chain} (attempt ${attempts}):`, err);
+
+      logger.error(
+        `❌ Failed to connect to ${chain} (attempt ${attempts}):`,
+        err
+      );
       throw err;
     }
   }
@@ -112,7 +115,7 @@ export class PolkadotApiClient {
    */
   async disconnectAll(): Promise<void> {
     logger.info("Disconnecting all chains...");
-    
+
     const disconnectPromises = Array.from(this.connections.entries()).map(
       async ([chain, api]) => {
         try {
@@ -127,7 +130,7 @@ export class PolkadotApiClient {
     await Promise.all(disconnectPromises);
     this.connections.clear();
     this.connectionAttempts.clear();
-    
+
     logger.success("All chains disconnected");
   }
 
@@ -136,12 +139,12 @@ export class PolkadotApiClient {
    */
   async healthCheck(): Promise<Record<ChainName, boolean>> {
     const health: Partial<Record<ChainName, boolean>> = {};
-    
+
     for (const chain of Object.keys(RPC_ENDPOINTS) as ChainName[]) {
       const api = this.connections.get(chain);
       health[chain] = api ? api.isConnected : false;
     }
-    
+
     return health as Record<ChainName, boolean>;
   }
 }
@@ -153,4 +156,3 @@ export const apiClient = PolkadotApiClient.getInstance();
 export const getApi = (chain: ChainName) => apiClient.getApi(chain);
 export const disconnectAll = () => apiClient.disconnectAll();
 export const healthCheck = () => apiClient.healthCheck();
-

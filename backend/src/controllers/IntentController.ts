@@ -3,11 +3,14 @@
  * Handles user intents and returns optimal routes
  */
 
-import { Request, Response } from 'express';
-import { routeOptimizer, OptimizationPriority } from '../services/route/routeOptimizer.js';
-import { chainIntelligence } from '../services/polkadot/chainService.js';
-import { ChainName } from '../config/constants.js';
-import { logger } from '../config/logger.js';
+import { Request, Response } from "express";
+import {
+  routeOptimizer,
+  OptimizationPriority,
+} from "../services/route/routeOptimizer.js";
+import { chainIntelligence } from "../services/polkadot/chainService.js";
+import { ChainName } from "../config/constants.js";
+import { logger } from "../config/logger.js";
 
 /**
  * Get list of supported chains (only those currently connected)
@@ -16,14 +19,14 @@ export async function getSupportedChains(req: Request, res: Response) {
   try {
     // Get all chain stats to determine which are connected
     const allChains: ChainName[] = [
-      'assetHub',
-      'hydration',
-      'acala',
-      'bifrost',
-      'moonbeam',
-      'astar',
-      'parallel',
-      'interlay'
+      "assetHub",
+      "hydration",
+      "acala",
+      "bifrost",
+      "moonbeam",
+      "astar",
+      "parallel",
+      "interlay",
     ];
 
     // Check which chains are actually connected
@@ -34,30 +37,30 @@ export async function getSupportedChains(req: Request, res: Response) {
           return {
             id: chain,
             name: getChainDisplayName(chain),
-            isConnected: stats.currentBlock > 0
+            isConnected: stats.currentBlock > 0,
           };
         } catch (error) {
           return {
             id: chain,
             name: getChainDisplayName(chain),
-            isConnected: false
+            isConnected: false,
           };
         }
       })
     );
 
     // Filter to only connected chains
-    const connectedChains = chainStatuses.filter(c => c.isConnected);
+    const connectedChains = chainStatuses.filter((c) => c.isConnected);
 
     res.json({
       success: true,
-      chains: connectedChains
+      chains: connectedChains,
     });
   } catch (error) {
-    logger.error('Error fetching chains:', error);
+    logger.error("Error fetching chains:", error);
     res.status(500).json({
       success: false,
-      error: 'Failed to fetch supported chains'
+      error: "Failed to fetch supported chains",
     });
   }
 }
@@ -67,14 +70,14 @@ export async function getSupportedChains(req: Request, res: Response) {
  */
 function getChainDisplayName(chain: ChainName): string {
   const displayNames: Record<ChainName, string> = {
-    assetHub: 'Asset Hub',
-    hydration: 'Hydration',
-    acala: 'Acala',
-    bifrost: 'Bifrost',
-    moonbeam: 'Moonbeam',
-    astar: 'Astar (Shibuya)',
-    parallel: 'Parallel',
-    interlay: 'Interlay'
+    assetHub: "Asset Hub",
+    hydration: "Hydration",
+    acala: "Acala",
+    bifrost: "Bifrost",
+    moonbeam: "Moonbeam",
+    astar: "Astar (Shibuya)",
+    parallel: "Parallel",
+    interlay: "Interlay",
   };
   return displayNames[chain] || chain;
 }
@@ -84,34 +87,31 @@ function getChainDisplayName(chain: ChainName): string {
  */
 export async function solveIntent(req: Request, res: Response) {
   try {
-    const {
-      fromChain,
-      toChain,
-      token,
-      amount,
-      toAddress,
-      prefrences
-    } = req.body;
+    const { fromChain, toChain, token, amount, toAddress, prefrences } =
+      req.body;
 
     // Validation
     if (!fromChain || !toChain || !token || !amount) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields: fromChain, toChain, token, amount'
+        error: "Missing required fields: fromChain, toChain, token, amount",
       });
     }
 
-    logger.info(`Solving intent: ${fromChain} → ${toChain} (${amount} ${token})`);
+    logger.info(
+      `Solving intent: ${fromChain} → ${toChain} (${amount} ${token})`
+    );
 
     // Map priority
     const priorityMap: Record<string, OptimizationPriority> = {
-      'cost': 'cheapest',
-      'speed': 'fastest',
-      'balanced': 'balanced',
-      'reliability': 'reliable'
+      cost: "cheapest",
+      speed: "fastest",
+      balanced: "balanced",
+      reliability: "reliable",
     };
 
-    const priority = priorityMap[prefrences?.priortize || 'balanced'] || 'balanced';
+    const priority =
+      priorityMap[prefrences?.priortize || "balanced"] || "balanced";
 
     // Get ALL possible routes and score them
     const allRoutes = await routeOptimizer.compareRoutes(
@@ -123,7 +123,7 @@ export async function solveIntent(req: Request, res: Response) {
     if (!allRoutes || allRoutes.length === 0) {
       return res.status(404).json({
         success: false,
-        error: `No route found from ${fromChain} to ${toChain}`
+        error: `No route found from ${fromChain} to ${toChain}`,
       });
     }
 
@@ -133,11 +133,11 @@ export async function solveIntent(req: Request, res: Response) {
 
     // Get alternative routes (different paths only)
     const seenPaths = new Set<string>();
-    seenPaths.add(optimalRoute.path.join('-'));
-    
+    seenPaths.add(optimalRoute.path.join("-"));
+
     const alternativeRoutes = allRoutes
-      .filter(r => {
-        const pathKey = r.path.join('-');
+      .filter((r) => {
+        const pathKey = r.path.join("-");
         if (seenPaths.has(pathKey)) return false;
         seenPaths.add(pathKey);
         return true;
@@ -145,35 +145,49 @@ export async function solveIntent(req: Request, res: Response) {
       .slice(0, 3); // Max 3 alternatives
 
     // Build response
-    const recommendedRoute = buildRouteResponse(optimalRoute, fromChain, toChain, token, amount);
-    const alternativeRoutesResponse = alternativeRoutes.map(r => buildRouteResponse(r, fromChain, toChain, token, amount));
+    const recommendedRoute = buildRouteResponse(
+      optimalRoute,
+      fromChain,
+      toChain,
+      token,
+      amount
+    );
+    const alternativeRoutesResponse = alternativeRoutes.map((r) =>
+      buildRouteResponse(r, fromChain, toChain, token, amount)
+    );
 
     // Calculate analytics
-    const totalGasAvg = allRoutes.reduce((sum, r) => sum + r.breakdown.gasCost, 0) / allRoutes.length;
-    const savingsPercentage = ((totalGasAvg - optimalRoute.breakdown.gasCost) / totalGasAvg) * 100;
-    
+    const totalGasAvg =
+      allRoutes.reduce((sum, r) => sum + r.breakdown.gasCost, 0) /
+      allRoutes.length;
+    const savingsPercentage =
+      ((totalGasAvg - optimalRoute.breakdown.gasCost) / totalGasAvg) * 100;
+
     const analytics = {
       totalRoutesAnalyzed: allRoutes.length,
       totalGas: optimalRoute.breakdown.gasCost,
       savingsPercentage: Math.max(0, savingsPercentage),
       avgGasSaving: optimalRoute.savings?.vsBestAlternative || 0,
       avgTimeEstimate: optimalRoute.breakdown.estimatedTime,
-      networkHealth: optimalRoute.breakdown.congestionScore < 30 ? 'excellent' : 
-                     optimalRoute.breakdown.congestionScore < 70 ? 'good' : 'degraded'
+      networkHealth:
+        optimalRoute.breakdown.congestionScore < 30
+          ? "excellent"
+          : optimalRoute.breakdown.congestionScore < 70
+          ? "good"
+          : "degraded",
     };
 
     res.json({
       success: true,
       recommendedRoute,
       alternativeRoutes: alternativeRoutesResponse,
-      analytics
+      analytics,
     });
-
   } catch (error: any) {
-    logger.error('Error solving intent:', error);
+    logger.error("Error solving intent:", error);
     res.status(500).json({
       success: false,
-      error: error.message || 'Failed to solve intent'
+      error: error.message || "Failed to solve intent",
     });
   }
 }
@@ -191,11 +205,12 @@ function buildRouteResponse(
   // Build steps from path
   const steps = route.path.map((chain: string, index: number) => ({
     chain,
-    bridge: index < route.path.length - 1 ? 'XCM' : undefined
+    bridge: index < route.path.length - 1 ? "XCM" : undefined,
   }));
 
   // Calculate gas saving
-  const gasSaving = route.savings?.vsBestAlternative || route.savings?.vsDirectRoute || 0;
+  const gasSaving =
+    route.savings?.vsBestAlternative || route.savings?.vsDirectRoute || 0;
 
   return {
     routeId: `route-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -207,10 +222,14 @@ function buildRouteResponse(
     totalGas: route.breakdown.gasCost,
     totalTime: route.breakdown.estimatedTime * 1000, // Convert to ms
     relaibility: route.breakdown.reliability,
-    congestionLevel: route.breakdown.congestionScore < 30 ? 'low' :
-                     route.breakdown.congestionScore < 70 ? 'medium' : 'high',
+    congestionLevel:
+      route.breakdown.congestionScore < 30
+        ? "low"
+        : route.breakdown.congestionScore < 70
+        ? "medium"
+        : "high",
     gasSaving,
     score: route.score,
-    recommendation: route.recommendation
+    recommendation: route.recommendation,
   };
 }

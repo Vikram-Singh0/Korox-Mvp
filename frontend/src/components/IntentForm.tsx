@@ -23,7 +23,7 @@ interface IntentFormProps {
 export default function IntentForm({ onSubmit, isLoading }: IntentFormProps) {
   const [connectedChains, setConnectedChains] = useState<Chain[]>([]);
   const [isLoadingChains, setIsLoadingChains] = useState(true);
-  
+
   const [formData, setFormData] = useState({
     fromChain: "",
     toChain: "",
@@ -37,18 +37,21 @@ export default function IntentForm({ onSubmit, isLoading }: IntentFormProps) {
     const fetchChains = async () => {
       try {
         setIsLoadingChains(true);
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+        const apiUrl =
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
         const response = await fetch(`${apiUrl}/api/chains`);
         const data = await response.json();
-        
+
         if (data.success && data.chains) {
           setConnectedChains(data.chains);
           // Set default chains if available
           if (data.chains.length > 0) {
-            setFormData(prev => ({
+            setFormData((prev) => ({
               ...prev,
               fromChain: prev.fromChain || data.chains[0].id,
-              toChain: prev.toChain || (data.chains.length > 1 ? data.chains[1].id : "")
+              toChain:
+                prev.toChain ||
+                (data.chains.length > 1 ? data.chains[1].id : ""),
             }));
           }
         }
@@ -62,10 +65,10 @@ export default function IntentForm({ onSubmit, isLoading }: IntentFormProps) {
           { id: "astar", name: "Shibuya (Astar)", isConnected: true },
         ];
         setConnectedChains(fallbackChains);
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
           fromChain: prev.fromChain || "assetHub",
-          toChain: prev.toChain || "hydration"
+          toChain: prev.toChain || "hydration",
         }));
       } finally {
         setIsLoadingChains(false);
@@ -116,7 +119,9 @@ export default function IntentForm({ onSubmit, isLoading }: IntentFormProps) {
               required
             >
               <option value="" className="bg-zinc-900">
-                {isLoadingChains ? "Loading chains..." : "Select source chain..."}
+                {isLoadingChains
+                  ? "Loading chains..."
+                  : "Select source chain..."}
               </option>
               {connectedChains.map((chain) => (
                 <option key={chain.id} value={chain.id} className="bg-zinc-900">
@@ -157,7 +162,9 @@ export default function IntentForm({ onSubmit, isLoading }: IntentFormProps) {
               required
             >
               <option value="" className="bg-zinc-900">
-                {isLoadingChains ? "Loading chains..." : "Select destination chain..."}
+                {isLoadingChains
+                  ? "Loading chains..."
+                  : "Select destination chain..."}
               </option>
               {connectedChains.map((chain) => (
                 <option key={chain.id} value={chain.id} className="bg-zinc-900">
