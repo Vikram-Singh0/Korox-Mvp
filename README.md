@@ -1,4 +1,4 @@
-# 🗡️ KOROX - Cutting Complex Paths in Polkadot
+tus# 🗡️ KOROX - Cutting Complex Paths in Polkadot
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-22.x-green.svg)](https://nodejs.org/)
@@ -102,6 +102,7 @@ chainIntelligence.startMonitoring(30);
 ```
 
 For each parachain, KOROX:
+
 - Opens WebSocket connection via `@polkadot/api`
 - Fetches current block height: `api.rpc.chain.getHeader()`
 - Analyzes congestion:
@@ -132,6 +133,7 @@ routeGraph.findAllPaths(source, destination, maxHops: 3)
 ```
 
 Uses **Depth-First Search (DFS)** to find all possible paths:
+
 - Direct route: `assetHub → hydration`
 - 2-hop routes: `assetHub → acala → hydration`
 - 3-hop routes: `assetHub → moonbeam → acala → hydration`
@@ -141,7 +143,7 @@ Uses **Depth-First Search (DFS)** to find all possible paths:
 Each route is scored using a weighted formula:
 
 ```typescript
-totalScore = 
+totalScore =
   (gasScore × gasWeight) +
   (timeScore × timeWeight) +
   (reliabilityScore × reliabilityWeight) +
@@ -149,6 +151,7 @@ totalScore =
 ```
 
 **Optimization Strategies:**
+
 - **Balanced**: 25% gas + 25% time + 25% reliability + 25% congestion
 - **Fastest**: 10% gas + 50% time + 20% reliability + 20% congestion
 - **Cheapest**: 50% gas + 10% time + 20% reliability + 20% congestion
@@ -180,6 +183,7 @@ totalScore =
 ## 📦 Tech Stack
 
 ### Backend
+
 - **Runtime**: Node.js 22.x
 - **Framework**: Express 5.x
 - **Language**: TypeScript 5.9
@@ -188,6 +192,7 @@ totalScore =
 - **CORS**: cors middleware
 
 ### Frontend
+
 - **Framework**: Next.js 16.0 (App Router)
 - **UI Library**: React 19.2
 - **Styling**: Tailwind CSS 4.x
@@ -196,6 +201,7 @@ totalScore =
 - **HTTP Client**: Fetch API
 
 ### DevOps
+
 - **Backend Hosting**: Render (Node.js service)
 - **Frontend Hosting**: Vercel
 - **Version Control**: Git + GitHub
@@ -259,15 +265,18 @@ Frontend runs on `http://localhost:3000`
 ## 📡 API Reference
 
 ### Base URL
+
 - **Production**: `https://korox-mvp.onrender.com`
 - **Local**: `http://localhost:4000`
 
 ### Endpoints
 
 #### `GET /api/health`
+
 Health check endpoint
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -277,9 +286,11 @@ Health check endpoint
 ```
 
 #### `GET /api/intents/chains`
+
 Get list of supported parachains (only connected ones)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -291,9 +302,11 @@ Get list of supported parachains (only connected ones)
 ```
 
 #### `POST /api/intents/solve`
+
 Solve user intent and get optimal routes
 
 **Request Body:**
+
 ```json
 {
   "fromChain": "assetHub",
@@ -302,12 +315,13 @@ Solve user intent and get optimal routes
   "amount": 10,
   "toAddress": "5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY",
   "prefrences": {
-    "priortize": "balanced"  // Options: "cost", "speed", "balanced", "reliability"
+    "priortize": "balanced" // Options: "cost", "speed", "balanced", "reliability"
   }
 }
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -372,6 +386,7 @@ NEXT_PUBLIC_API_URL=https://korox-mvp.onrender.com
 ```
 
 For local development:
+
 ```bash
 NEXT_PUBLIC_API_URL=http://localhost:4000
 ```
@@ -431,6 +446,7 @@ Complete deployment instructions are available in [`DEPLOYMENT.md`](./DEPLOYMENT
 ### Quick Deploy Summary
 
 **Backend (Render)**:
+
 1. Connect GitHub repo to Render
 2. Set Root Directory: `backend`
 3. Build Command: `npm install --include=dev && tsc`
@@ -438,6 +454,7 @@ Complete deployment instructions are available in [`DEPLOYMENT.md`](./DEPLOYMENT
 5. Add environment variables
 
 **Frontend (Vercel)**:
+
 1. Import GitHub repo to Vercel
 2. Set Root Directory: `frontend`
 3. Framework: Next.js (auto-detected)
@@ -460,22 +477,26 @@ Complete deployment instructions are available in [`DEPLOYMENT.md`](./DEPLOYMENT
 ## 🎯 Use Cases
 
 ### 1. Cost-Optimized Transfers
+
 User wants to transfer 100 WND from Asset Hub to Hydration with minimal fees.
 
 **Without KOROX**: Direct transfer costs 0.015 WND  
 **With KOROX**: Routes through Acala, costs 0.011 WND → **27% savings**
 
 ### 2. Speed-Critical Transactions
+
 User needs fastest path regardless of cost.
 
 **KOROX Response**: Direct route via high-speed parachain with low congestion
 
 ### 3. High-Reliability Transfers
+
 User transferring large amount, wants maximum reliability.
 
 **KOROX Response**: Route through most stable parachains with 98%+ uptime
 
 ### 4. Congestion Avoidance
+
 Network experiencing high traffic on popular routes.
 
 **KOROX Response**: Automatically suggests alternative paths avoiding congested chains
@@ -485,24 +506,28 @@ Network experiencing high traffic on popular routes.
 ## 🔮 Future Roadmap
 
 ### Phase 1: Enhanced Monitoring (Q1 2026)
+
 - [ ] Add support for 20+ parachains
 - [ ] Real-time WebSocket updates to frontend
 - [ ] Historical congestion analytics
 - [ ] Price impact estimation for large transfers
 
 ### Phase 2: Autonomous Execution (Q2 2026)
+
 - [ ] Transaction execution agent
 - [ ] One-click multi-hop transfers
 - [ ] Automated route switching on congestion
 - [ ] Gas limit estimation and safety checks
 
 ### Phase 3: KOROX Parachain (Q3 2026)
+
 - [ ] Launch dedicated parachain on Polkadot
 - [ ] Native intent execution layer
 - [ ] Decentralized route discovery
 - [ ] On-chain governance for route optimization
 
 ### Phase 4: Universal Cross-Chain (Q4 2026)
+
 - [ ] Integrate Hyperbridge for external chains
 - [ ] Support Ethereum, Solana, Cosmos, Avalanche
 - [ ] Universal routing algorithm (any chain → any chain)
@@ -541,6 +566,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 👥 Team
 
 Built with ❤️ for the Polkadot ecosystem by:
+
 - **Vikram Singh** - [@Vikram-Singh0](https://github.com/Vikram-Singh0)
 
 ---
@@ -577,6 +603,6 @@ Built with ❤️ for the Polkadot ecosystem by:
 
 **⚔️ KOROX - Cutting Complex Paths in Polkadot ⚔️**
 
-*Precision. Speed. Efficiency.*
+_Precision. Speed. Efficiency._
 
 </div>

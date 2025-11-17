@@ -342,8 +342,28 @@ export default function Home() {
               </div>
             </div>
           </div>
-          <div className="mt-8 pt-6 border-t border-orange-500/10 text-center text-gray-500 text-sm">
-            <p>© 2025 KOROX. Built for the Polkadot Ecosystem .</p>
+          <div className="mt-8 pt-6 border-t border-orange-500/10 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-center md:text-left text-gray-500 text-sm">
+              © 2025 KOROX. Built for the Polkadot Ecosystem.
+            </p>
+            <a
+              href="https://x.com/KoroxCore"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center gap-2 px-4 py-2 bg-orange-500/10 hover:bg-orange-500/20 border border-orange-500/30 hover:border-orange-500/50 rounded-lg transition-all"
+            >
+              <svg
+                className="w-4 h-4 text-orange-400 group-hover:text-orange-300 transition-colors"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              <span className="text-sm font-semibold text-orange-300 group-hover:text-orange-200 transition-colors">
+                Connect with us
+              </span>
+            </a>
           </div>
         </div>
       </footer>
